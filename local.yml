@@ -1,0 +1,68 @@
+version: '3'
+
+volumes:
+  local_postgres_data: {}
+  local_postgres_data_backups: {}
+
+services:
+  django: &django
+    restart: always
+    build:
+      context: .
+      dockerfile: ./Dockerfiles/local/django
+    image: mydev_consulta
+    depends_on:
+      - dbcc
+    env_file:
+      - ./.envs/.local/.sys
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - "8000:8000"
+    command: /start
+
+  dbcc:
+    restart: always
+    image: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - local_postgres_data:/var/lib/postgresql/data
+      - local_postgres_data_backups:/backups
+    env_file:
+      - ./.envs/.local/.sys
+    build:
+      context: .
+      dockerfile: ./Dockerfiles/local/postgres
+
+  redis:
+    restart: always
+    image: redis:3.2
+
+  celeryworker:
+    restart: always
+    <<: *django
+    image: celeryworker
+    depends_on:
+      - redis
+      - dbcc
+    ports: []
+    command: /start-celeryworker
+
+  celerybeat:
+    restart: always
+    <<: *django
+    image: celerybeat
+    depends_on:
+      - redis
+      - dbcc
+    ports: []
+    command: /start-celerybeat
+
+  flower:
+    restart: always
+    <<: *django
+    image: flower
+    ports:
+      - "5555:5555"
+    command: /start-flower

@@ -1,0 +1,16 @@
+DEBUG=on
+DJANGO_SETTINGS_MODULE=consulta_ciudadana.settings.local
+
+#Postgres
+POSTGRES_USER=ingkstr
+POSTGRES_PASSWORD=abcd1234
+POSTGRES_HOST=dbcc
+POSTGRES_PORT=5432
+POSTGRES_DB=dbsys
+
+# Redis
+REDIS_URL=redis://redis:6379/0
+
+# Flower
+CELERY_FLOWER_USER=abcd
+CELERY_FLOWER_PASSWORD=1234
